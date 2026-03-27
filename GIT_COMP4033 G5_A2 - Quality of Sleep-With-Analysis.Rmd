@@ -1,0 +1,251 @@
+---
+title: "COMP4033 G5_A1 - Sleep"
+author: "Group 5"
+date: "2026-03-26"
+output: pdf_document
+header-includes:
+  - \usepackage{fancyhdr}
+  - \pagestyle{fancy}
+  - \fancyfoot[CO,CE]{GitHub Repository:\ \url{https://github.com/COMP4033-R-Analysis-Sleep-Group5/G5-Sleep-Stress}}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, dev = "png", dpi = 150)
+```
+
+
+```{r library}
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+```
+
+```{r import dataset}
+sleepDS <- read.csv("Sleep_health_and_lifestyle_dataset.csv")
+#Please upload the dataset!
+```
+
+#Understanding the dataset
+```{r structure}
+#1. Print the structure of your dataset.
+str(sleepDS)
+```
+
+```{r variable}
+#2. List the variables in your dataset.
+ls(sleepDS)
+```
+
+```{r head}
+#3. Print the top 15 rows of your dataset.
+head(sleepDS, n=15)
+```
+
+Upon the exploration of a chosen dataset as the first step, called function
+shows the dataset renamed as "sleepDS" contains 13 variables and 374 values.
+The data types of each attribute vary according to the values,
+including integer, character, and numeric.
+
+#Cleaning dataset
+```{r missing value}
+#4.	Remove missing values in your dataset.
+summary(is.na(sleepDS))
+```
+
+Missing value is not identified from the above function, hence, no need
+to perform the removal/replacement of missing value.This can be seen in the
+summary of the is.na function where FALSE is returned for all 374 observations
+across the 13 variables.
+
+```{r duplicated value}
+#5.	Identify and remove duplicated data from your dataset.
+summary(duplicated(sleepDS))
+sleepDS_dup = sleepDS %>% distinct()
+str(sleepDS_dup)
+```
+
+No duplicate value identified new data.frame sleepDS.dup created with 374 obj
+and 13 variables just as parent sleep.DS. 
+
+```{r renaming}
+#6.	Rename some of the column names in your dataset.
+sleepDS_cl <- sleepDS_dup %>% rename(
+  Sleep = Sleep.Duration, 
+  Stress = Stress.Level, 
+  Physical.Activity = Physical.Activity.Level)
+str(sleepDS_cl)
+```
+The data.frame is converted into a new frame sleepDS.cl with renamed variable
+of sleep,stress and Physical.Activity for legibility.
+#Data Manipulation
+```{r dataset manipulation}
+# 7.	Use data manipulation techniques and filter rows based on any logical
+# criteria that exist in your dataset.
+sleepDS_fil = sleepDS_cl %>% filter(Age >=30)
+head(sleepDS_fil %>% arrange(Age))
+
+```
+
+Due to the incomplete Gen Z value, the subjects were filtered by the age
+to focus on those who are Gen Y (Millennial) and Gen X. These are people
+30 years or older in 2026.
+
+```{r reorder}
+#8.	Reorder multiple rows in descending order 
+sleepDS_ord = sleepDS_fil %>% arrange(desc(Age))
+head(sleepDS_ord)
+```
+
+Objects have now been organized by a descending order in a new data frame
+sleepDS_ord
+
+```{r setting analysis objectives}
+#9.	Identify the dependent & independent variables 
+dependent = c("Quality of Sleep")
+independent = c("Age", "Sleep", "Physical.Activity", "Stress", "Heart.Rate",
+                "Daily.Steps", "GenderBI")
+dependent
+independent #all of the quantity attributes
+```
+
+New values listing out dependent and independent variables were created.
+
+```{r binary gender}
+#Assign the binary values to Gender for future analysis.
+sleepDS_ord$GenderBI = ifelse(sleepDS_ord$Gender == "Male", 1, 0)
+str(sleepDS_ord)
+```
+
+A new variable is added to sleepDS_ord assigning gender a numeric value
+for analysis.
+
+```{r reshaping}
+#9. and use reshaping techniques and create a new data frame by joining
+#those variables from your dataset. 
+sleepDF = sleepDS_ord %>% select(Quality.of.Sleep, 
+                                GenderBI, Age, Sleep, Physical.Activity,
+                                Stress, Heart.Rate, Daily.Steps)
+class(sleepDF)
+```
+
+```{r check the structure of a new data frame}
+str(sleepDF)
+```
+
+The new data frame focusing only on our independent and dependent variables
+was created. This data frame named "sleepDF" is cleaned with no missing and
+duplicated values as per function 4. and 5.
+In this new data frame, there are 8 variables and 355 values.
+
+```{r dim reduction}
+#10. Add new variables in your data frame by using a mathematical function 
+sleepDF$Steps = (sleepDF$Daily.Steps)/1000
+str(sleepDF)
+```
+
+To reduce the data dimension, the daily.steps were changed from "steps unit"
+to "k steps unit".
+
+
+#Analysis
+```{r summary}
+#11. Print the summary statistics of your dataset.
+summary(sleepDF)
+```
+The summary function applies some basic mathematical functions to each variable,
+but these and more functions are done separatly for a more complete analysis. 
+```{r Mode function}
+#12.	Write a user defined function using any of the variables from the data set.
+Find_Mode = function(x){
+  ux=unique(x)
+  ux[which.max(tabulate(match(x,ux)))]}
+test = c(1,1,2,5,2,5,1,1,0)
+Find_Mode(test)
+```
+Creation of a function to help identify the mode of our variables. 
+```{r mean}
+#13.	Use any of the numerical variables from the dataset and perform
+#the following statistical functions.
+#Mean 
+mean(sleepDF$Quality.of.Sleep)
+```
+
+```{r median}
+#13.	Use any of the numerical variables from the dataset and perform
+#the following statistical functions.
+#Median
+median(sleepDF$Quality.of.Sleep)
+```
+
+```{r mode}
+#13.	Use any of the numerical variables from the dataset and perform
+#the following statistical functions.
+#Mode 
+Find_Mode(sleepDF$Quality.of.Sleep)
+```
+
+```{r range}
+#13.	Use any of the numerical variables from the dataset and performthe
+# following statistical functions.
+#Range 
+range(sleepDF$Quality.of.Sleep, na.rm=TRUE)
+```
+
+```{r scatter plot}
+#14.	Plot a scatter plot for any 2 variables in your dataset. 
+ggplot(data= sleepDF, 
+       aes(x=Stress, y=Quality.of.Sleep, col=factor(GenderBI)))+geom_point()
+```
+
+The scatter plot suggests an overall negative relationship between stress level and quality of sleep. When stress is low (3-5), the quality of sleep tends to be around the high score area (7-9); whereas with higher stress level (7-8), lower sleep qiality scores are observed (4-6). The pattern indicates that increasing stress level may be associated with poorer quality of sleep. As for the two gender groups, there is no clear visual evidence of gender specific pattern with stress level or quality of sleep based on the plot. 
+
+```{r bar plot}
+#15.	Plot a bar plot for any 2 variables in your dataset  
+ggplot(data=sleepDF, 
+       aes(x=Quality.of.Sleep, fill=factor(GenderBI)))+geom_bar()
+```
+
+The bar chart shows that the data are concentrated in the mid to high sleep quality range (6-9), suggesting that most participants selected reported moderate to good sleep quality. Across scores 6-8, both gender groups are represented and appear fairly balanced, with the Male group (GenderBI=1) slightly higher. At the highest of sleep quality score, Female group (GenderBI=0) accounts for the most of responses indicating that gender may be associated with difference in distribution of sleep quality rating. However, the chart alone does not confirm the statistical significance, so further testing or data analysis are needed to validate the pattern. 
+
+```{r correlation matrix}
+#16.	Find the correlation between any 2 variables by applying least square
+# linear regression model. 
+cor_matrix = cor(sleepDF)
+cor_matrix
+```
+
+Pearson r analysis writeup
+
+For this assignment, a sleep-health dataset was analyzed by G5 in order to identify correlational effects of independent variables (age, sleep duration (hours/night), physical activity level (1-100), stress level (1-10), heart rate, daily steps (thousands), gender) on a selected dependent variable (quality of sleep).
+
+R analysis included only subjects belonging to Generation Y (Millennial) and Generation X. These are individuals aged >=30 years as of 2026. Data cleanup performed by checking the dataset for duplicated and missing values.
+
+Using a correlation matrix, the Pearson correlation coefficients between the IVs and DV were identified. 
+
+Analysis found that quality of sleep is negatively correlated with gender (r=-0.27), stress (r=-0.90), heart rate (r=-0.62), and steps/daily steps (r=-0.04), and positively correlated with age (r=0.42), sleep duration (r=0.89), and physical activity (r=0.13).
+
+(Regarding gender, value increases were correlated with decreased quality of sleep. This indicates that being female (gender value=0) correlates to lower quality of sleep.)
+
+These results indicate that as stress level, heart rate, and steps per day increase, quality of sleep decreases. Considering the scale of correlation coefficient, steps has very low negative correlation (0<r<=-0.19), gender has high negative correlation (-0.6<r<=-0.79), and stress has very high negative correlation (-0.8<r-1.0).
+
+Results also indicate that as age, sleep duration, and physical activity levels increase, quality of sleep also increases. Considering the correlational scale, age has a moderate correlation (0.4<r<=0.59), sleep duration has a very high correlation (0.8<r1.0), and physical activity has a very low correlation (0<r<=0.19).
+
+Overall, these findings indicate that stress and sleep duration are most strongly correlated with quality of sleep, with stress being a negative factor, and sleep duration being a positive factor.
+
+```{r correlation}
+#16.	Find the correlation between any 2 variables by applying least square
+# linear regression model. 
+sleep_cor = cor(sleepDF$Quality.of.Sleep, sleepDF$Stress)
+sleep_cor
+```
+
+Hence we are performing the correlation cal on STRESS
+
+#Ready for Training
+```{r training set}
+#17.	Create a training set using a random number generator engine.
+set.seed(4033)
+sleepDF_train = sleepDF %>% sample_frac(0.8, replace = FALSE)
+head(sleepDF_train)
+```
+To avoid data leakage splitting for training and predictive analytics usually is done before analysis. However, this was is out of scope of current analysis. Splitting was performed to fulfill assignment requirements.
