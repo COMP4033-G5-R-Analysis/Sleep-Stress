@@ -1,12 +1,14 @@
 ---
-title: "COMP4033 G5_A1 - Sleep"
-author: "Group 5"
-date: "2026-03-26"
+title: "COMP4033 G5 Sleep Analysis"
+date: "2026-03-27"
 output: pdf_document
 header-includes:
   - \usepackage{fancyhdr}
+  - \usepackage{hyperref}
   - \pagestyle{fancy}
-  - \fancyfoot[CO,CE]{GitHub Repository:\ \url{https://github.com/COMP4033-R-Analysis-Sleep-Group5/G5-Sleep-Stress}}
+  - \fancyhf{}
+  - \fancyfoot[C]{GitHub Repository:\url{https://github.com/COMP4033-G5-R-Analysis/Sleep-Stress.git}}
+  - \fancypagestyle{plain}{\pagestyle{fancy}}
 ---
 
 ```{r setup, include=FALSE}
